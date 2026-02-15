@@ -51,7 +51,6 @@ def parse_paste(raw_text, expected_len):
     values = []
     for x in lines:
         try:
-            # Clean common characters like '%' or 'pts' if present
             clean_val = x.replace('%','').replace('pts','').strip()
             values.append(float(clean_val))
         except ValueError:
@@ -65,21 +64,24 @@ if entry_mode == "Bulk Paste (Digital)":
     
     with col1:
         st.subheader("Rotation Data")
-        rot_raw = st.text_area("Paste Column (Body Parts + Milestones)", height=200, placeholder="0.0\n15.5\n...")
+        # UNIQUE LABEL: Added 'Rotation' to the string
+        rot_raw = st.text_area("Paste Rotation Column (Body + Milestones)", height=200, placeholder="0.0\n15.5\n...")
         r_vals = parse_paste(rot_raw, len(BODY_PARTS) + len(MILESTONES))
         rot_b = dict(zip(BODY_PARTS, r_vals[:len(BODY_PARTS)]))
         rot_m = dict(zip(MILESTONES, r_vals[len(BODY_PARTS):]))
 
     with col2:
         st.subheader("Structural Data")
-        struc_raw = st.text_area("Paste Column (Body Parts + Factors)", height=200, placeholder="0.0\n15.5\n...")
+        # UNIQUE LABEL: Added 'Structural' to the string
+        struc_raw = st.text_area("Paste Structural Column (Body + Factors)", height=200, placeholder="0.0\n15.5\n...")
         s_vals = parse_paste(struc_raw, len(BODY_PARTS) + len(STRUCTURAL_FACTORS))
         struc_b = dict(zip(BODY_PARTS, s_vals[:len(BODY_PARTS)]))
         struc_f = dict(zip(STRUCTURAL_FACTORS, s_vals[len(BODY_PARTS):]))
 
     with col3:
         st.subheader("Weight Transfer Data")
-        trans_raw = st.text_area("Paste Column (Body Parts + Milestones)", height=200, placeholder="0.0\n15.5\n...")
+        # UNIQUE LABEL: Added 'Weight Transfer' to the string
+        trans_raw = st.text_area("Paste Weight Transfer Column (Body + Milestones)", height=200, placeholder="0.0\n15.5\n...")
         w_vals = parse_paste(trans_raw, len(BODY_PARTS) + len(MILESTONES))
         trans_b = dict(zip(BODY_PARTS, w_vals[:len(BODY_PARTS)]))
         trans_m = dict(zip(MILESTONES, w_vals[len(BODY_PARTS):]))
@@ -104,7 +106,6 @@ else:
 if st.button("Calculate Full Clinical Report"):
     tax = gravity_logic.calculate_gravity_tax(rot_total, struc_total, trans_total)
     
-    # Aggregation for Stress Rankings
     cum_body = {p: rot_b[p] + struc_b[p] + trans_b[p] for p in BODY_PARTS}
     cum_miles = {m: rot_m[m] + trans_m.get(m, 0) for m in MILESTONES}
     
@@ -116,7 +117,6 @@ if st.button("Calculate Full Clinical Report"):
     st.header(f"Analysis Results: {name}")
     st.metric("Calculated Gravity Tax", f"{tax:.4f}")
 
-    # Visualizing Stressors
     c1, c2, c3 = st.columns(3)
     with c1:
         st.subheader("Top Body Stressors")
@@ -128,7 +128,6 @@ if st.button("Calculate Full Clinical Report"):
         st.subheader("Structural Factors")
         st.table(pd.DataFrame(ranked_struc[:5], columns=["Factor", "% Deficit"]))
 
-    # Action Plan
     st.success(f"**Therapist Action Plan:** Focus on {ranked_body[0][0].upper()} to unlock {ranked_miles[0][0].upper()} via {ranked_struc[0][0].upper()} correction.")
 
     # CSV DOWNLOAD
