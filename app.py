@@ -120,7 +120,7 @@ if st.button("Calculate Full Clinical Report"):
         st.subheader("All Structural Factors")
         st.dataframe(pd.DataFrame(ranked_struc, columns=["Factor", "% Deficit"]), height=500)
 
-    st.success(f"**Action Plan:** Focus on {ranked_body[0][0].upper()}, {ranked_miles[0][0].upper()}, and {ranked_struc[0][0].upper()} correction.")
+    st.success(f"**Action Plan:** Focus on {ranked_body[0][0].upper()}, {ranked_miles[0][0].upper()}, and {ranked_struc[0][0].upper()}.")
 
     # CSV DOWNLOAD
     output = io.StringIO()
