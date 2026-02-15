@@ -125,16 +125,37 @@ if st.button("Calculate Full Clinical Report"):
     # CSV DOWNLOAD
     output = io.StringIO()
     writer = csv.writer(output)
+    
+    # 1. Header and Overarching Stats
     writer.writerow(["GRAVITY TAX CLINICAL REPORT", name.upper()])
     writer.writerow(["Date", datetime.now().strftime("%Y-%m-%d")])
     writer.writerow(["Gravity Tax Score", f"{tax:.4f}"])
+    writer.writerow(["Action Plan", f"Focus on {ranked_body[0][0].upper()} and {ranked_miles[0][0].upper()}"])
+    writer.writerow([]) # Blank row for spacing
+
+    # 2. Complete Body Stressor Ranking
+    writer.writerow(["ALL BODY STRESSOR COMPONENTS (RANKED)"])
+    writer.writerow(["Component", "Cumulative Stress Points"])
+    for item, score in ranked_body:
+        writer.writerow([item, round(score, 2)])
     writer.writerow([])
-    writer.writerow(["FULL BODY STRESSOR RANKING"])
-    for item, score in ranked_body: writer.writerow([item, score])
+
+    # 3. Complete Milestone Resistance
+    writer.writerow(["ALL MILESTONE RESISTANCE (RANKED)"])
+    writer.writerow(["Milestone", "Resistance Points"])
+    for item, score in ranked_miles:
+        writer.writerow([item, round(score, 2)])
+    writer.writerow([])
+
+    # 4. Complete Structural Factors
+    writer.writerow(["ALL STRUCTURAL BOTTLENECKS (RANKED)"])
+    writer.writerow(["Structural Factor", "Percentage Deficit"])
+    for item, score in ranked_struc:
+        writer.writerow([item, f"{round(score, 2)}%"])
     
     st.download_button(
         label="📥 Download Full Comprehensive Report",
         data=output.getvalue(),
-        file_name=f"{name.replace(' ', '_')}_Full_Analysis.csv",
+        file_name=f"{name.replace(' ', '_')}_Full_Clinical_Analysis.csv",
         mime="text/csv"
     )
