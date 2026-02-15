@@ -30,7 +30,7 @@ STRUCTURAL_FACTORS = [
 
 st.set_page_config(page_title="Fractal Code Diagnostic", layout="wide")
 
-st.title("🧬 The Fractal Code: Clinical Diagnostic Tool")
+st.title("Gravity Tax Evaluation Tool")
 st.write("Calculate **Gravity Tax** and identify structural bottlenecks for milestone enhancement.")
 
 # --- SIDEBAR: OVERALL TOTALS ---
