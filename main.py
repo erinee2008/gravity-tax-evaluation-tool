@@ -114,9 +114,9 @@ def main():
     mile_report = "\n\n[RANKED MILESTONE RESISTANCE]\n" + "\n".join([f"  {i+1:2}. {x[0]:25} : {x[1]:6.1f} pts" for i, x in enumerate(ranked_miles)])
     struc_report = "\n\n[RANKED STRUCTURAL BOTTLENECKS]\n" + "\n".join([f"  {i+1:2}. {x[0]:28} : {x[1]:6.1f}%" for i, x in enumerate(ranked_struc)])
 
-    action_plan = (f"\n\n{'='*65}\nTHERAPIST ACTION PLAN:\n"
-                   f"Focus intervention on {ranked_body[0][0].upper()} to reduce structural\n"
-                   f"resistance in {ranked_miles[0][0].upper()} via {ranked_struc[0][0].upper()}.\n"
+    action_plan = (f"\n\n{'='*65}\nACTION PLAN:\n"
+                   f"Focus intervention on {ranked_body[0][0].upper()},\n"
+                   f"{ranked_miles[0][0].upper()}, and {ranked_struc[0][0].upper()}.\n"
                    f"{'='*65}")
     
     full_report = report_header + summary + body_report + mile_report + struc_report + action_plan
