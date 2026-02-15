@@ -120,7 +120,7 @@ if st.button("Calculate Full Clinical Report"):
         st.subheader("All Structural Factors")
         st.dataframe(pd.DataFrame(ranked_struc, columns=["Factor", "% Deficit"]), height=500)
 
-    st.success(f"**Therapist Action Plan:** Focus on {ranked_body[0][0].upper()} to unlock {ranked_miles[0][0].upper()} via {ranked_struc[0][0].upper()} correction.")
+    st.success(f"**Action Plan:** Focus on {ranked_body[0][0].upper()}, {ranked_miles[0][0].upper()}, and {ranked_struc[0][0].upper()} correction.")
 
     # CSV DOWNLOAD
     output = io.StringIO()
@@ -130,7 +130,7 @@ if st.button("Calculate Full Clinical Report"):
     writer.writerow(["GRAVITY TAX CLINICAL REPORT", name.upper()])
     writer.writerow(["Date", datetime.now().strftime("%Y-%m-%d")])
     writer.writerow(["Gravity Tax Score", f"{tax:.4f}"])
-    writer.writerow(["Action Plan", f"Focus on {ranked_body[0][0].upper()} and {ranked_miles[0][0].upper()}"])
+    writer.writerow(["Action Plan", f"Focus on {ranked_body[0][0].upper()}, {ranked_miles[0][0].upper()}, and {ranked_struc[0][0].upper()}"])
     writer.writerow([]) # Blank row for spacing
 
     # 2. Complete Body Stressor Ranking
