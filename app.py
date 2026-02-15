@@ -24,14 +24,15 @@ STRUCTURAL_FACTORS = [
     "Midline", "Peripheral Midline", "small stem + vortex", "large stem + vortex", 
     "small butterfly", "large butterfly", "breathing", "balance", 
     "horizon heart structure", "driving heart structure", 
-    "front and back heart structure", "bouyancy", "counterbalance", 
+    "front and back heart structure", "buoyancy", "counterbalance", 
     "momentum slow", "momentum normal"
 ]
 
-st.set_page_config(page_title="Fractal Code Diagnostic", layout="wide")
+st.set_page_config(page_title="Gravity Tax Tool", layout="wide")
 
-st.title("Gravity Tax Evaluation Tool")
-st.write("Calculate **Gravity Tax** and identify structural bottlenecks for milestone enhancement.")
+# Updated Title for Movement Lesson Branding
+st.title("🧬 Gravity Tax Evaluation Tool")
+st.write("Clinical analysis tool for **The Fractal Series** in association with **Movement Lesson**.")
 
 # --- SIDEBAR: OVERALL TOTALS ---
 st.sidebar.header("Step 1: Overarching Totals")
@@ -40,75 +41,109 @@ rot_total = st.sidebar.number_input("Total Rotation (0-360)", 0.0, 360.0, value=
 struc_total = st.sidebar.number_input("Total Structural (0-360)", 0.0, 360.0, value=134.05)
 trans_total = st.sidebar.number_input("Total Weight Transfer (0-360)", 0.0, 360.0, value=170.6)
 
-# --- MAIN INTERFACE: FINITE DATA ---
-st.header("Step 2: Finite Data Entry (%)")
-tab1, tab2, tab3 = st.tabs(["Rotation", "Structural", "Weight Transfer"])
+# --- DATA ENTRY METHOD ---
+st.header("Step 2: Clinical Data Entry")
+entry_mode = st.radio("Choose Entry Method:", ["Bulk Paste (Digital)", "Manual Sliders"], horizontal=True)
 
-with tab1:
-    col1, col2 = st.columns(2)
-    with col1:
-        st.subheader("Body Parts")
-        rot_b = {p: st.slider(f"R-{p}", 0, 100, 50) for p in BODY_PARTS}
-    with col2:
-        st.subheader("Milestones")
-        rot_m = {m: st.slider(f"R-{m}", 0, 100, 50) for m in MILESTONES}
+# Helper function to turn pasted text into numbers
+def parse_paste(raw_text, expected_len):
+    lines = [line.strip() for line in raw_text.split('\n') if line.strip()]
+    values = []
+    for x in lines:
+        try:
+            # Clean common characters like '%' or 'pts' if present
+            clean_val = x.replace('%','').replace('pts','').strip()
+            values.append(float(clean_val))
+        except ValueError:
+            pass
+    return (values + [0.0]*expected_len)[:expected_len]
 
-with tab2:
-    col1, col2 = st.columns(2)
+# --- DATA PROCESSING ---
+if entry_mode == "Bulk Paste (Digital)":
+    st.info("Paste your columns of numbers below. Ensure the order matches your digital evaluation sheets.")
+    col1, col2, col3 = st.columns(3)
+    
     with col1:
-        st.subheader("Body Parts")
-        struc_b = {p: st.slider(f"S-{p}", 0, 100, 50) for p in BODY_PARTS}
-    with col2:
-        st.subheader("Structural Factors")
-        struc_f = {f: st.slider(f"S-{f}", 0, 100, 50) for f in STRUCTURAL_FACTORS}
+        st.subheader("Rotation Data")
+        rot_raw = st.text_area("Paste Column (Body Parts + Milestones)", height=200, placeholder="0.0\n15.5\n...")
+        r_vals = parse_paste(rot_raw, len(BODY_PARTS) + len(MILESTONES))
+        rot_b = dict(zip(BODY_PARTS, r_vals[:len(BODY_PARTS)]))
+        rot_m = dict(zip(MILESTONES, r_vals[len(BODY_PARTS):]))
 
-with tab3:
-    col1, col2 = st.columns(2)
-    with col1:
-        st.subheader("Body Parts")
-        trans_b = {p: st.slider(f"W-{p}", 0, 100, 50) for p in BODY_PARTS}
     with col2:
-        st.subheader("Milestones")
-        trans_m = {m: st.slider(f"W-{m}", 0, 100, 50) for m in MILESTONES}
+        st.subheader("Structural Data")
+        struc_raw = st.text_area("Paste Column (Body Parts + Factors)", height=200, placeholder="0.0\n15.5\n...")
+        s_vals = parse_paste(struc_raw, len(BODY_PARTS) + len(STRUCTURAL_FACTORS))
+        struc_b = dict(zip(BODY_PARTS, s_vals[:len(BODY_PARTS)]))
+        struc_f = dict(zip(STRUCTURAL_FACTORS, s_vals[len(BODY_PARTS):]))
+
+    with col3:
+        st.subheader("Weight Transfer Data")
+        trans_raw = st.text_area("Paste Column (Body Parts + Milestones)", height=200, placeholder="0.0\n15.5\n...")
+        w_vals = parse_paste(trans_raw, len(BODY_PARTS) + len(MILESTONES))
+        trans_b = dict(zip(BODY_PARTS, w_vals[:len(BODY_PARTS)]))
+        trans_m = dict(zip(MILESTONES, w_vals[len(BODY_PARTS):]))
+
+else:
+    # Manual Sliders Tab
+    tab1, tab2, tab3 = st.tabs(["Rotation", "Structural", "Weight Transfer"])
+    with tab1:
+        c1, c2 = st.columns(2)
+        rot_b = {p: c1.slider(f"R-{p}", 0, 100, 0) for p in BODY_PARTS}
+        rot_m = {m: c2.slider(f"R-{m}", 0, 100, 0) for m in MILESTONES}
+    with tab2:
+        c1, c2 = st.columns(2)
+        struc_b = {p: c1.slider(f"S-{p}", 0, 100, 0) for p in BODY_PARTS}
+        struc_f = {f: c2.slider(f"S-{f}", 0, 100, 0) for f in STRUCTURAL_FACTORS}
+    with tab3:
+        c1, c2 = st.columns(2)
+        trans_b = {p: c1.slider(f"W-{p}", 0, 100, 0) for p in BODY_PARTS}
+        trans_m = {m: c2.slider(f"W-{m}", 0, 100, 0) for m in MILESTONES}
 
 # --- GENERATE ANALYSIS ---
-if st.button("Generate Full Clinical Analysis"):
+if st.button("Calculate Full Clinical Report"):
     tax = gravity_logic.calculate_gravity_tax(rot_total, struc_total, trans_total)
     
-    # Aggregation Logic
+    # Aggregation for Stress Rankings
     cum_body = {p: rot_b[p] + struc_b[p] + trans_b[p] for p in BODY_PARTS}
-    cum_miles = {m: rot_m[m] + trans_m[m] for m in MILESTONES}
+    cum_miles = {m: rot_m[m] + trans_m.get(m, 0) for m in MILESTONES}
     
     ranked_body = sorted(cum_body.items(), key=lambda x: x[1], reverse=True)
     ranked_miles = sorted(cum_miles.items(), key=lambda x: x[1], reverse=True)
     ranked_struc = sorted(struc_f.items(), key=lambda x: x[1], reverse=True)
 
     st.divider()
-    st.header(f"Analysis for {name}")
+    st.header(f"Analysis Results: {name}")
     st.metric("Calculated Gravity Tax", f"{tax:.4f}")
 
+    # Visualizing Stressors
     c1, c2, c3 = st.columns(3)
     with c1:
-        st.write("**Top Body Stressors**")
-        st.write(pd.DataFrame(ranked_body[:5], columns=["Part", "Pts"]))
+        st.subheader("Top Body Stressors")
+        st.table(pd.DataFrame(ranked_body[:5], columns=["Body Part", "Points"]))
     with c2:
-        st.write("**Top Milestone Resistance**")
-        st.write(pd.DataFrame(ranked_miles[:5], columns=["Milestone", "Pts"]))
+        st.subheader("Top Milestone Resistance")
+        st.table(pd.DataFrame(ranked_miles[:5], columns=["Milestone", "Points"]))
     with c3:
-        st.write("**Top Structural Factors**")
-        st.write(pd.DataFrame(ranked_struc[:5], columns=["Factor", "%"]))
+        st.subheader("Structural Factors")
+        st.table(pd.DataFrame(ranked_struc[:5], columns=["Factor", "% Deficit"]))
+
+    # Action Plan
+    st.success(f"**Therapist Action Plan:** Focus on {ranked_body[0][0].upper()} to unlock {ranked_miles[0][0].upper()} via {ranked_struc[0][0].upper()} correction.")
 
     # CSV DOWNLOAD
     output = io.StringIO()
     writer = csv.writer(output)
-    writer.writerow(["The Fractal Code Clinical Report", name])
-    writer.writerow(["Gravity Tax", tax])
-    writer.writerow(["Top Body Part", ranked_body[0][0]])
-    writer.writerow(["Top Milestone", ranked_miles[0][0]])
+    writer.writerow(["GRAVITY TAX CLINICAL REPORT", name.upper()])
+    writer.writerow(["Date", datetime.now().strftime("%Y-%m-%d")])
+    writer.writerow(["Gravity Tax Score", f"{tax:.4f}"])
+    writer.writerow([])
+    writer.writerow(["RANKED BODY STRESSORS"])
+    for item, score in ranked_body: writer.writerow([item, score])
     
     st.download_button(
-        label="Download Full CSV Report",
+        label="📥 Download Printable CSV Report",
         data=output.getvalue(),
-        file_name=f"{name}_report.csv",
+        file_name=f"{name.replace(' ', '_')}_Analysis.csv",
         mime="text/csv"
     )
